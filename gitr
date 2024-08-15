@@ -1,0 +1,42 @@
+#!/bin/sh
+
+
+if ! [ -x "$(command -v git)" ]; then
+  echo 'Error: git is not installed.' >&2
+  exit 1
+fi
+
+
+GIT_STATUS_RESULT=$(git status -s)
+GIT_RESULT_PARSE=$(cut -c 3- <<< ${GIT_STATUS_RESULT})
+
+array=($(echo $GIT_RESULT_PARSE | tr ' ' '\n'))
+
+user_input="q"
+
+for index in "${!array[@]}"
+do
+    echo "$index ${array[index]}"
+done
+read -p "Type q or the file number you want to revert: " user_input
+
+REVERT_ARRAY=()
+
+FILE_LIST_SIZE=${#array[@]}
+
+while [ $user_input != "q" ] ; do
+		if [[ $user_input ]] && [ $user_input -eq $user_input 2>/dev/null ]; then
+				if [ $user_input -lt ${FILE_LIST_SIZE} ]; then
+						REVERT_ARRAY+=(${array[user_input]})
+				fi
+		fi
+		
+		if [ ${#REVERT_ARRAY[@]} -gt 0 ]; then
+				for index in "${!REVERT_ARRAY[@]}"
+				do
+							echo "$index ${REVERT_ARRAY[index]}"
+				done
+		fi
+
+		read -p " " user_input
+done; 
