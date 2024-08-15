@@ -39,6 +39,7 @@ while [ $user_input != "q" ] ; do
 		fi
 		
 		if [ $user_input == "e" ] && [ ${#REVERT_ARRAY[@]} -gt 0 ]; then
+				echo "git restore -- ${REVERT_ARRAY[@]}"
 				$(git restore -- ${REVERT_ARRAY[@]})
 				exit 0
 		fi
