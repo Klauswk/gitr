@@ -12,29 +12,45 @@ GIT_RESULT_PARSE=$(cut -c 3- <<< ${GIT_STATUS_RESULT})
 
 array=($(echo $GIT_RESULT_PARSE | tr ' ' '\n'))
 
+FILE_LIST_SIZE=${#array[@]}
+
+if [ ${FILE_LIST_SIZE} = 0 ]; then
+	echo "No changes to be process"
+	exit 0
+fi
+	
 user_input="q"
 
 for index in "${!array[@]}"
 do
-    echo "$index ${array[index]}"
+    echo -e "\e[31m   M: $index ${array[index]}\e[0m"
 done
 read -p "Type q or the file number you want to revert: " user_input
 
 REVERT_ARRAY=()
-
-FILE_LIST_SIZE=${#array[@]}
-
 while [ $user_input != "q" ] ; do
 		if [[ $user_input ]] && [ $user_input -eq $user_input 2>/dev/null ]; then
 				if [ $user_input -lt ${FILE_LIST_SIZE} ]; then
 						REVERT_ARRAY+=(${array[user_input]})
+						unset array[user_input]
+						#array=( "${array[@]/${array[user_input]}}" )
+						FILE_LIST_SIZE=${#array[@]}
 				fi
 		fi
 		
+		if [ $user_input == "l" ];  then
+			echo -e "\e[31m Modified list: \e[0m"
+			for index in "${!array[@]}"
+				do
+						echo -e "\e[31m   M: $index ${array[index]}\e[0m":
+			done		
+		fi
+
 		if [ ${#REVERT_ARRAY[@]} -gt 0 ]; then
+				echo -e "\e[34m Revert: \e[0m"
 				for index in "${!REVERT_ARRAY[@]}"
 				do
-							echo "$index ${REVERT_ARRAY[index]}"
+							echo -e "\e[34m   A: ${REVERT_ARRAY[index]}\e[0m"
 				done
 		fi
 		
@@ -44,5 +60,5 @@ while [ $user_input != "q" ] ; do
 				exit 0
 		fi
 
-		read -p " " user_input
+		read -p "Type q or the file number you want to revert: " user_input
 done; 
