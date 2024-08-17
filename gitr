@@ -33,16 +33,27 @@ while [ $user_input != "q" ] ; do
 				if [ $user_input -lt ${FILE_LIST_SIZE} ]; then
 						REVERT_ARRAY+=(${array[user_input]})
 						unset array[user_input]
-						#array=( "${array[@]/${array[user_input]}}" )
 						FILE_LIST_SIZE=${#array[@]}
 				fi
 		fi
-		
+			
+		if [ $user_input == "d" ] && [ ${#REVERT_ARRAY[@]} -gt 0 ]; then
+				read -p "Type q or the file number you want to remove from the staging area: " REMOVE_FROM_STAGING 
+					if [[ $REMOVE_FROM_STAGING ]] && [ $REMOVE_FROM_STAGING -eq $REMOVE_FROM_STAGING 2>/dev/null ]; then
+						if [ $REMOVE_FROM_STAGING -lt ${#REVERT_ARRAY[@]} ]; then
+								array+=(${REVERT_ARRAY[REMOVE_FROM_STAGING]})
+								unset REVERT_ARRAY[REMOVE_FROM_STAGING]
+								FILE_LIST_SIZE=${#array[@]}
+						fi
+				fi			
+		fi	
+
+
 		if [ $user_input == "l" ];  then
 			echo -e "\e[31m Modified list: \e[0m"
 			for index in "${!array[@]}"
 				do
-						echo -e "\e[31m   M: $index ${array[index]}\e[0m":
+						echo -e "\e[31m   M: $index ${array[index]}\e[0m"
 			done		
 		fi
 
@@ -58,7 +69,7 @@ while [ $user_input != "q" ] ; do
 				echo "git restore -- ${REVERT_ARRAY[@]}"
 				$(git restore -- ${REVERT_ARRAY[@]})
 				exit 0
-		fi
+		fi	
 
-		read -p "Type q or the file number you want to revert: " user_input
+		read -p "Type q to quit, e to execute, d to remove from the revert area or the file number you want to revert: " user_input
 done; 
